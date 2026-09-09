@@ -165,3 +165,45 @@ $$;
 revoke execute on function public.stats_summary(date) from public;
 revoke execute on function public.stats_summary(date) from anon;
 grant execute on function public.stats_summary(date) to authenticated;
+
+-- Categorías del usuario (editables: se pueden agregar y borrar, incluidas las de ejemplo)
+create table public.categories (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text not null,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  unique (user_id, name)
+);
+
+alter table public.categories enable row level security;
+
+create policy "categories_select_own" on public.categories for select using (auth.uid() = user_id);
+create policy "categories_insert_own" on public.categories for insert with check (auth.uid() = user_id);
+create policy "categories_update_own" on public.categories for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "categories_delete_own" on public.categories for delete using (auth.uid() = user_id);
+
+-- Categorías de ejemplo para cuentas nuevas (el usuario puede borrarlas después)
+create or replace function public.seed_default_categories()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.categories (user_id, name, sort_order) values
+    (new.id, 'CASA', 1),
+    (new.id, 'TRABAJO', 2),
+    (new.id, 'PERSONAL', 3)
+  on conflict do nothing;
+  return new;
+end;
+$$;
+
+revoke execute on function public.seed_default_categories() from public;
+revoke execute on function public.seed_default_categories() from anon;
+revoke execute on function public.seed_default_categories() from authenticated;
+
+create trigger on_auth_user_created_categories
+  after insert on auth.users
+  for each row execute function public.seed_default_categories();

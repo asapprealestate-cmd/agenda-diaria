@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { runRollover, useTasks } from '../hooks/useTasks'
-import { useCategories } from '../hooks/useCategories'
+import { useCategoryList } from '../hooks/useCategoryList'
 import { addDays, startOfWeek, todayISO } from '../lib/dates'
 import type { Task } from '../lib/types'
 import { DateHeader } from './DateHeader'
@@ -21,12 +21,11 @@ export function AgendaScreen() {
   const [showCalendar, setShowCalendar] = useState(false)
   const [sheetTask, setSheetTask] = useState<Task | 'new' | null>(null)
   const [rolledOver, setRolledOver] = useState(false)
-  const [categoriesKey, setCategoriesKey] = useState(0)
   const [yesterdayHasTasks, setYesterdayHasTasks] = useState<boolean | null>(null)
 
   const { tasks, loading, error, addTask, updateTask, toggleDone, deleteTask, fetchYesterday, copyFromYesterday } =
     useTasks(date, user?.id)
-  const categories = useCategories(user?.id, categoriesKey)
+  const { categories, addCategory, removeCategory } = useCategoryList(user?.id)
 
   useEffect(() => {
     if (!user || rolledOver) return
@@ -127,12 +126,13 @@ export function AgendaScreen() {
       {sheetTask && (
         <AddTaskSheet
           task={editingTask}
-          existingCategories={categories}
+          categories={categories}
+          onAddCategory={addCategory}
+          onRemoveCategory={removeCategory}
           onClose={() => setSheetTask(null)}
           onSave={(input) => {
             if (editingTask) updateTask(editingTask, input)
             else addTask(input)
-            if (input.category) setCategoriesKey((k) => k + 1)
             setSheetTask(null)
           }}
           onDelete={

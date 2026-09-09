@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import type { NewTaskInput, Priority, Subtask, Task } from '../lib/types'
-
-const DEFAULT_CATEGORIES = ['CASA', 'TRABAJO', 'PERSONAL']
-const QUICK_TIMES = ['08:00', '13:00', '18:30']
+import type { Category } from '../hooks/useCategoryList'
 
 function uid() {
   return Math.random().toString(36).slice(2, 10)
@@ -10,13 +8,17 @@ function uid() {
 
 export function AddTaskSheet({
   task,
-  existingCategories,
+  categories,
+  onAddCategory,
+  onRemoveCategory,
   onSave,
   onDelete,
   onClose
 }: {
   task?: Task
-  existingCategories: string[]
+  categories: Category[]
+  onAddCategory: (name: string) => Promise<Category | null>
+  onRemoveCategory: (id: string) => void
   onSave: (input: NewTaskInput) => void
   onDelete?: () => void
   onClose: () => void
@@ -30,7 +32,12 @@ export function AddTaskSheet({
   const [newSubtask, setNewSubtask] = useState('')
   const [autoRollover, setAutoRollover] = useState(task?.auto_rollover ?? true)
 
-  const categories = Array.from(new Set([...DEFAULT_CATEGORIES, ...existingCategories, ...(category ? [category] : [])]))
+  // Si la tarea tiene una categoría que ya no está en la lista (se borró), la mostramos
+  // igual para no perderla, pero sin botón de borrar (no hay a qué categoría apuntar).
+  const displayCategories: { id: string | null; name: string }[] = [
+    ...categories,
+    ...(category && !categories.some((c) => c.name === category) ? [{ id: null, name: category }] : [])
+  ]
 
   function addSubtask() {
     const t = newSubtask.trim()
@@ -47,9 +54,17 @@ export function AddTaskSheet({
     setSubtasks((prev) => prev.filter((s) => s.id !== id))
   }
 
-  function addCustomCategory() {
+  async function addCustomCategory() {
     const name = window.prompt('Nombre de la nueva categoría')?.trim()
-    if (name) setCategory(name.toUpperCase())
+    if (!name) return
+    const cat = await onAddCategory(name)
+    if (cat) setCategory(cat.name)
+  }
+
+  function handleRemoveCategory(e: React.MouseEvent, id: string | null, name: string) {
+    e.stopPropagation()
+    if (category === name) setCategory(null)
+    if (id) onRemoveCategory(id)
   }
 
   function handleSave() {
@@ -117,22 +132,13 @@ export function AddTaskSheet({
               </button>
             </div>
             {hasTime && (
-              <div className="flex flex-wrap items-center gap-2 mt-2">
+              <div className="mt-2">
                 <input
                   type="time"
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
-                  className="text-[13px] font-semibold text-ink-soft border border-paper-line rounded-full px-[13px] py-[7px] bg-transparent outline-none"
+                  className="text-[15px] font-semibold text-ink border border-paper-line rounded-lg px-[13px] py-[9px] bg-transparent outline-none focus:border-azul"
                 />
-                {QUICK_TIMES.map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setTime(t)}
-                    className="text-[13px] font-semibold text-ink-soft border border-paper-line rounded-full px-[13px] py-[7px]"
-                  >
-                    {t}
-                  </button>
-                ))}
               </div>
             )}
           </div>
@@ -140,19 +146,32 @@ export function AddTaskSheet({
           <div className="mt-6">
             <div className="text-[11px] font-bold tracking-[.14em] text-ink-faint">CATEGORÍA Y PRIORIDAD</div>
             <div className="flex flex-wrap gap-2 mt-[10px]">
-              {categories.map((c) => {
-                const selected = category === c
+              {displayCategories.map((c) => {
+                const selected = category === c.name
                 return (
-                  <button
-                    key={c}
-                    onClick={() => setCategory(selected ? null : c)}
-                    className={[
-                      'text-[12px] font-semibold rounded-[3px] px-[10px] py-[6px] border transition',
-                      selected ? 'text-azul bg-azul-tint border-azul-tintBorder' : 'text-ink-faint border-paper-line'
-                    ].join(' ')}
-                  >
-                    {c}
-                  </button>
+                  <div key={c.name} className="relative">
+                    <button
+                      onClick={() => setCategory(selected ? null : c.name)}
+                      className={[
+                        'text-[12px] font-semibold rounded-[3px] pl-[10px] pr-[22px] py-[6px] border transition',
+                        selected ? 'text-azul bg-azul-tint border-azul-tintBorder' : 'text-ink-faint border-paper-line'
+                      ].join(' ')}
+                    >
+                      {c.name}
+                    </button>
+                    {c.id && (
+                      <button
+                        onClick={(e) => handleRemoveCategory(e, c.id, c.name)}
+                        aria-label={`Borrar categoría ${c.name}`}
+                        className={[
+                          'absolute right-[4px] top-1/2 -translate-y-1/2 text-[13px] leading-none',
+                          selected ? 'text-azul' : 'text-ink-faintest'
+                        ].join(' ')}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
                 )
               })}
               <button
