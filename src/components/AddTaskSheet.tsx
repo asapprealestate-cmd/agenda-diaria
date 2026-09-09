@@ -1,0 +1,266 @@
+import { useState } from 'react'
+import type { NewTaskInput, Priority, Subtask, Task } from '../lib/types'
+
+const DEFAULT_CATEGORIES = ['CASA', 'TRABAJO', 'PERSONAL']
+const QUICK_TIMES = ['08:00', '13:00', '18:30']
+
+function uid() {
+  return Math.random().toString(36).slice(2, 10)
+}
+
+export function AddTaskSheet({
+  task,
+  existingCategories,
+  onSave,
+  onDelete,
+  onClose
+}: {
+  task?: Task
+  existingCategories: string[]
+  onSave: (input: NewTaskInput) => void
+  onDelete?: () => void
+  onClose: () => void
+}) {
+  const [title, setTitle] = useState(task?.title ?? '')
+  const [hasTime, setHasTime] = useState(!!task?.time)
+  const [time, setTime] = useState(task?.time?.slice(0, 5) ?? '09:00')
+  const [category, setCategory] = useState<string | null>(task?.category ?? null)
+  const [priority, setPriority] = useState<Priority>(task?.priority ?? 2)
+  const [subtasks, setSubtasks] = useState<Subtask[]>(task?.subtasks ?? [])
+  const [newSubtask, setNewSubtask] = useState('')
+  const [autoRollover, setAutoRollover] = useState(task?.auto_rollover ?? true)
+
+  const categories = Array.from(new Set([...DEFAULT_CATEGORIES, ...existingCategories, ...(category ? [category] : [])]))
+
+  function addSubtask() {
+    const t = newSubtask.trim()
+    if (!t) return
+    setSubtasks((prev) => [...prev, { id: uid(), title: t, done: false }])
+    setNewSubtask('')
+  }
+
+  function toggleSubtask(id: string) {
+    setSubtasks((prev) => prev.map((s) => (s.id === id ? { ...s, done: !s.done } : s)))
+  }
+
+  function removeSubtask(id: string) {
+    setSubtasks((prev) => prev.filter((s) => s.id !== id))
+  }
+
+  function addCustomCategory() {
+    const name = window.prompt('Nombre de la nueva categoría')?.trim()
+    if (name) setCategory(name.toUpperCase())
+  }
+
+  function handleSave() {
+    if (!title.trim()) return
+    onSave({
+      title: title.trim(),
+      time: hasTime ? `${time}:00` : null,
+      category,
+      priority,
+      subtasks,
+      auto_rollover: autoRollover
+    })
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center">
+      <div className="absolute inset-0 bg-ink/50" onClick={onClose} />
+      <div className="relative w-full sm:w-[420px] sm:mb-8 sm:rounded-[24px] bg-paper rounded-t-[26px] shadow-sheet sheet-in max-h-[92vh] flex flex-col">
+        <div className="px-[26px] pt-5 flex items-center justify-between shrink-0">
+          <button onClick={onClose} className="text-[15px] font-semibold text-ink-faint">
+            Cancelar
+          </button>
+          <span className="font-serif text-[20px] text-ink">{task ? 'Editar tarea' : 'Nueva tarea'}</span>
+          <button
+            onClick={handleSave}
+            disabled={!title.trim()}
+            className="text-[15px] font-bold text-azul disabled:opacity-40"
+          >
+            Guardar
+          </button>
+        </div>
+
+        <div className="px-[26px] pb-6 overflow-y-auto grow mt-[26px]">
+          <div className="border-b-[1.5px] border-ink pb-[10px]">
+            <input
+              autoFocus
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="¿Qué hay que hacer?"
+              className="w-full border-0 bg-transparent font-serif text-[26px] text-ink outline-none placeholder:text-ink-faintest"
+            />
+          </div>
+          <div className="text-[12px] text-ink-faintest mt-2">Escribí qué hay que hacer</div>
+
+          <div className="mt-[26px]">
+            <div className="text-[11px] font-bold tracking-[.14em] text-ink-faint">HORARIO</div>
+            <div className="flex gap-2 mt-[10px]">
+              <button
+                onClick={() => setHasTime(false)}
+                className={[
+                  'flex-1 text-center text-[14px] font-semibold py-[11px] rounded-[7px] transition',
+                  !hasTime ? 'bg-ink text-ink-onDark' : 'border border-paper-line text-ink-soft'
+                ].join(' ')}
+              >
+                Sin horario
+              </button>
+              <button
+                onClick={() => setHasTime(true)}
+                className={[
+                  'flex-1 text-center text-[14px] font-semibold py-[11px] rounded-[7px] transition',
+                  hasTime ? 'bg-ink text-ink-onDark' : 'border border-paper-line text-ink-soft'
+                ].join(' ')}
+              >
+                A las…
+              </button>
+            </div>
+            {hasTime && (
+              <div className="flex flex-wrap items-center gap-2 mt-2">
+                <input
+                  type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  className="text-[13px] font-semibold text-ink-soft border border-paper-line rounded-full px-[13px] py-[7px] bg-transparent outline-none"
+                />
+                {QUICK_TIMES.map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setTime(t)}
+                    className="text-[13px] font-semibold text-ink-soft border border-paper-line rounded-full px-[13px] py-[7px]"
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="mt-6">
+            <div className="text-[11px] font-bold tracking-[.14em] text-ink-faint">CATEGORÍA Y PRIORIDAD</div>
+            <div className="flex flex-wrap gap-2 mt-[10px]">
+              {categories.map((c) => {
+                const selected = category === c
+                return (
+                  <button
+                    key={c}
+                    onClick={() => setCategory(selected ? null : c)}
+                    className={[
+                      'text-[12px] font-semibold rounded-[3px] px-[10px] py-[6px] border transition',
+                      selected ? 'text-azul bg-azul-tint border-azul-tintBorder' : 'text-ink-faint border-paper-line'
+                    ].join(' ')}
+                  >
+                    {c}
+                  </button>
+                )
+              })}
+              <button
+                onClick={addCustomCategory}
+                className="text-[12px] font-semibold text-ink-faint border border-dashed border-paper-line rounded-[3px] px-[10px] py-[6px]"
+              >
+                + nueva
+              </button>
+            </div>
+
+            <div className="flex gap-2 mt-3 items-center">
+              <span className="text-[13px] text-ink-faint">Prioridad</span>
+              <div className="flex gap-[6px]">
+                <button
+                  onClick={() => setPriority(1)}
+                  className={[
+                    'text-[14px] font-bold rounded-[4px] px-[10px] py-[5px] border transition',
+                    priority === 1 ? 'bg-rojo text-ink-onDark border-rojo' : 'text-rojo border-rojo-tintBorder'
+                  ].join(' ')}
+                >
+                  !!
+                </button>
+                <button
+                  onClick={() => setPriority(2)}
+                  className={[
+                    'text-[14px] font-bold rounded-[4px] px-[10px] py-[5px] border transition',
+                    priority === 2 ? 'bg-ink text-ink-onDark border-ink' : 'text-ink-faint border-paper-line'
+                  ].join(' ')}
+                >
+                  !
+                </button>
+                <button
+                  onClick={() => setPriority(3)}
+                  className={[
+                    'text-[14px] font-bold rounded-[4px] px-[10px] py-[5px] border transition',
+                    priority === 3 ? 'bg-ink-faintest text-ink-onDark border-ink-faintest' : 'text-ink-faintest border-paper-line'
+                  ].join(' ')}
+                >
+                  –
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <div className="text-[11px] font-bold tracking-[.14em] text-ink-faint">SUBTAREAS</div>
+            <div className="flex flex-col gap-[11px] mt-3">
+              {subtasks.map((s) => (
+                <div key={s.id} className="flex gap-[10px] items-center group">
+                  <button
+                    onClick={() => toggleSubtask(s.id)}
+                    className={[
+                      'w-[17px] h-[17px] rounded-[4px] border-[1.5px] flex items-center justify-center shrink-0',
+                      s.done ? 'bg-azul border-azul' : 'border-ink-faintest'
+                    ].join(' ')}
+                  >
+                    {s.done && (
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </button>
+                  <span className={`text-[14px] flex-1 ${s.done ? 'text-ink-faintest line-through' : 'text-ink'}`}>
+                    {s.title}
+                  </span>
+                  <button
+                    onClick={() => removeSubtask(s.id)}
+                    className="text-ink-faintest text-[12px] opacity-0 group-hover:opacity-100"
+                    aria-label="Quitar subtarea"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              <div className="flex gap-[10px] items-center">
+                <div className="w-[17px] h-[17px] rounded-[4px] border-[1.5px] border-dashed border-paper-line shrink-0" />
+                <input
+                  value={newSubtask}
+                  onChange={(e) => setNewSubtask(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      addSubtask()
+                    }
+                  }}
+                  onBlur={addSubtask}
+                  placeholder="Agregar subtarea"
+                  className="text-[14px] text-ink flex-1 bg-transparent outline-none placeholder:text-ink-faintest"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="px-[26px] pb-6 pt-4 border-t border-paper-divider shrink-0">
+          <div className="flex justify-between items-center text-[13px]">
+            <span className="text-ink-faint">Si no la hago, se pasa sola a mañana</span>
+            <button onClick={() => setAutoRollover((v) => !v)} className="font-bold text-azul">
+              {autoRollover ? 'Sí' : 'No'}
+            </button>
+          </div>
+          {task && onDelete && (
+            <button onClick={onDelete} className="w-full text-center text-[13px] font-semibold text-rojo mt-4">
+              Eliminar tarea
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
