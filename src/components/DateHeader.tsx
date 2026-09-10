@@ -27,14 +27,14 @@ export function DateHeader({
       <div className="flex justify-between items-end gap-3">
         <button onClick={onOpenCalendar} className="text-left min-w-0 active:opacity-70 transition">
           {rel && (
-            <div className={`text-[11px] font-bold tracking-[.14em] ${today ? 'text-azul' : 'text-ink-faint'}`}>
+            <div className={`text-[0.6875rem] font-bold tracking-[.14em] ${today ? 'text-azul' : 'text-ink-faint'}`}>
               {rel}
             </div>
           )}
-          <div className="font-serif text-[40px] leading-[1.05] text-ink truncate">
+          <div className="font-serif text-[2.5rem] leading-[1.05] text-ink truncate">
             {weekday} {day}
           </div>
-          <div className="text-[13px] text-ink-faint mt-0.5">
+          <div className="text-[0.8125rem] text-ink-faint mt-0.5">
             {month} {year}
           </div>
         </button>
@@ -57,7 +57,7 @@ export function DateHeader({
           <button
             aria-label="Vista semanal"
             onClick={onOpenWeek}
-            className="w-9 h-9 rounded-full bg-ink text-ink-onDark flex items-center justify-center text-[14px] active:scale-95 transition"
+            className="w-9 h-9 rounded-full bg-ink text-ink-onDark flex items-center justify-center text-[0.875rem] active:scale-95 transition"
           >
             ▤
           </button>
@@ -69,7 +69,7 @@ export function DateHeader({
           <div className="flex-1 h-[5px] bg-paper-track rounded-full overflow-hidden">
             <div className="h-full bg-azul rounded-full transition-all" style={{ width: `${pct}%` }} />
           </div>
-          <div className="text-[12px] font-semibold text-ink-soft shrink-0">
+          <div className="text-[0.75rem] font-semibold text-ink-soft shrink-0">
             {doneCount} de {totalCount}
           </div>
         </div>

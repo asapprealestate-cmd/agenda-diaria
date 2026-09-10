@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { runRollover, useTasks } from '../hooks/useTasks'
 import { useCategoryList } from '../hooks/useCategoryList'
+import type { useFontScale } from '../hooks/useFontScale'
 import { addDays, startOfWeek, todayISO } from '../lib/dates'
 import type { Task } from '../lib/types'
 import { DateHeader } from './DateHeader'
@@ -11,10 +12,11 @@ import { AddTaskSheet } from './AddTaskSheet'
 import { EmptyState } from './EmptyState'
 import { WeeklyView } from './WeeklyView'
 import { StatsScreen } from './StatsScreen'
+import { SettingsScreen } from './SettingsScreen'
 
-type ViewMode = 'day' | 'week' | 'stats'
+type ViewMode = 'day' | 'week' | 'stats' | 'settings'
 
-export function AgendaScreen() {
+export function AgendaScreen({ fontScale }: { fontScale: ReturnType<typeof useFontScale> }) {
   const { user, signOut } = useAuth()
   const [date, setDate] = useState(todayISO())
   const [view, setView] = useState<ViewMode>('day')
@@ -70,16 +72,23 @@ export function AgendaScreen() {
     return <StatsScreen onBack={() => setView('day')} />
   }
 
+  if (view === 'settings') {
+    return <SettingsScreen scale={fontScale.scale} onChangeScale={fontScale.setScale} onBack={() => setView('day')} />
+  }
+
   const doneCount = tasks.filter((t) => t.done).length
   const editingTask = sheetTask && sheetTask !== 'new' ? sheetTask : undefined
 
   return (
     <div className="min-h-screen flex flex-col bg-paper font-sans" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
       <div className="flex justify-end items-center gap-4 px-[26px] pt-3">
-        <button onClick={() => setView('stats')} className="text-[13px] font-semibold text-ink-faint">
+        <button onClick={() => setView('settings')} aria-label="Ajustes" className="text-ink-faint">
+          <GearIcon />
+        </button>
+        <button onClick={() => setView('stats')} className="text-[0.8125rem] font-semibold text-ink-faint">
           Cómo vas
         </button>
-        <button onClick={signOut} className="text-[13px] text-ink-faintest">
+        <button onClick={signOut} className="text-[0.8125rem] text-ink-faintest">
           Salir
         </button>
       </div>
@@ -116,7 +125,7 @@ export function AgendaScreen() {
       <button
         onClick={() => setSheetTask('new')}
         aria-label="Agregar tarea"
-        className="fixed right-[22px] bottom-10 w-[62px] h-[62px] rounded-full bg-ink text-ink-onDark shadow-sheet flex items-center justify-center text-[30px] font-light active:scale-95 transition"
+        className="fixed right-[22px] bottom-10 w-[62px] h-[62px] rounded-full bg-ink text-ink-onDark shadow-sheet flex items-center justify-center text-[1.875rem] font-light active:scale-95 transition"
       >
         +
       </button>
@@ -146,5 +155,14 @@ export function AgendaScreen() {
         />
       )}
     </div>
+  )
+}
+
+function GearIcon() {
+  return (
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
   )
 }

@@ -1,9 +1,11 @@
 import { useAuth } from './hooks/useAuth'
+import { useFontScale } from './hooks/useFontScale'
 import { AuthScreen } from './components/AuthScreen'
 import { AgendaScreen } from './components/AgendaScreen'
 
 export default function App() {
   const { session, loading } = useAuth()
+  const fontScale = useFontScale()
 
   if (loading) {
     return (
@@ -13,5 +15,5 @@ export default function App() {
     )
   }
 
-  return session ? <AgendaScreen /> : <AuthScreen />
+  return session ? <AgendaScreen fontScale={fontScale} /> : <AuthScreen />
 }

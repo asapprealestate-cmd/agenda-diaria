@@ -22,14 +22,14 @@ export function WeeklyView({
     <div className="min-h-screen flex flex-col bg-paper font-sans">
       <div className="px-[26px] pt-[10px] pb-[14px] flex justify-between items-end border-b border-paper-divider">
         <div>
-          <div className="text-[11px] font-bold tracking-[.14em] text-ink-faint">
+          <div className="text-[0.6875rem] font-bold tracking-[.14em] text-ink-faint">
             SEMANA {isoWeekNumber(weekStart)}
           </div>
-          <div className="font-serif text-[32px] leading-[1.1] text-ink">
+          <div className="font-serif text-[2rem] leading-[1.1] text-ink">
             {fromISO(weekStart).getDate()} → {fromISO(weekEnd).getDate()} {monthShort(weekEnd)}
           </div>
         </div>
-        <button onClick={onBack} className="text-[13px] font-semibold text-azul pb-1">
+        <button onClick={onBack} className="text-[0.8125rem] font-semibold text-azul pb-1">
           Ver día
         </button>
       </div>
@@ -72,12 +72,12 @@ function DayRow({
       ].join(' ')}
     >
       <div className="w-[42px] text-center shrink-0">
-        <div className={`text-[10px] font-bold ${isToday ? 'text-azul' : 'text-ink-faintest'}`}>{weekdayShort(iso)}</div>
-        <div className={`font-serif text-[24px] ${isToday ? 'text-ink' : 'text-ink-faintest'}`}>{fromISO(iso).getDate()}</div>
+        <div className={`text-[0.625rem] font-bold ${isToday ? 'text-azul' : 'text-ink-faintest'}`}>{weekdayShort(iso)}</div>
+        <div className={`font-serif text-[1.5rem] ${isToday ? 'text-ink' : 'text-ink-faintest'}`}>{fromISO(iso).getDate()}</div>
       </div>
       <div className="flex-1 min-w-0 pt-1 flex flex-col gap-[6px]">
         {sorted.length === 0 ? (
-          <div className="text-[13px] text-paper-line">—</div>
+          <div className="text-[0.8125rem] text-paper-line">—</div>
         ) : (
           <>
             {visible.map((t) => {
@@ -87,16 +87,16 @@ function DayRow({
                 <div
                   key={t.id}
                   className={[
-                    'text-[14px] truncate',
+                    'text-[0.875rem] truncate',
                     t.done ? 'text-ink-faintest line-through' : overdue ? 'text-rojo font-medium' : 'text-ink font-medium'
                   ].join(' ')}
                 >
                   {t.title}
-                  {overdue && <span className="text-[11px] font-bold ml-1">↷{days}</span>}
+                  {overdue && <span className="text-[0.6875rem] font-bold ml-1">↷{days}</span>}
                 </div>
               )
             })}
-            {overflow > 0 && <div className="text-[13px] text-ink-faint">+ {overflow} más</div>}
+            {overflow > 0 && <div className="text-[0.8125rem] text-ink-faint">+ {overflow} más</div>}
           </>
         )}
       </div>

@@ -18,20 +18,20 @@ export function EmptyState({
         ))}
       </div>
       <div>
-        <div className="font-serif text-[27px] leading-[1.2] text-ink">Hoja en blanco</div>
-        <p className="mt-2 text-[14px] leading-[1.55] text-ink-faint">
+        <div className="font-serif text-[1.6875rem] leading-[1.2] text-ink">Hoja en blanco</div>
+        <p className="mt-2 text-[0.875rem] leading-[1.55] text-ink-faint">
           No hay nada anotado para este día. Nada arrastrado tampoco.
         </p>
       </div>
       <div className="flex flex-col gap-[10px] w-full">
         <button
           onClick={onAdd}
-          className="bg-ink text-ink-onDark text-[15px] font-semibold py-[14px] rounded-lg"
+          className="bg-ink text-ink-onDark text-[0.9375rem] font-semibold py-[14px] rounded-lg"
         >
           Anotar una tarea
         </button>
         {canCopyYesterday && (
-          <button onClick={onCopyYesterday} className="text-[14px] font-semibold text-azul py-3">
+          <button onClick={onCopyYesterday} className="text-[0.875rem] font-semibold text-azul py-3">
             Copiar el día de ayer
           </button>
         )}

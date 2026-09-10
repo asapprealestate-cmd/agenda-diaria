@@ -42,22 +42,22 @@ export function AuthScreen() {
   return (
     <div className="min-h-screen flex flex-col px-8 bg-paper font-sans">
       <div className="mt-20">
-        <div className="w-[46px] h-[46px] rounded-[10px] bg-ink text-ink-onDark flex items-center justify-center font-serif text-[26px]">
+        <div className="w-[46px] h-[46px] rounded-[10px] bg-ink text-ink-onDark flex items-center justify-center font-serif text-[1.625rem]">
           A
         </div>
-        <h1 className="font-serif text-[46px] leading-[1.05] text-ink mt-6">
+        <h1 className="font-serif text-[2.875rem] leading-[1.05] text-ink mt-6">
           Tu agenda
           <br />
           de siempre.
         </h1>
-        <p className="text-[15px] leading-[1.55] text-ink-faint mt-3">
+        <p className="text-[0.9375rem] leading-[1.55] text-ink-faint mt-3">
           Lo que no hacés hoy aparece mañana. Como en papel, pero sin volver a escribirlo.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="mt-11 flex flex-col gap-[18px]">
         <label className="block">
-          <div className="text-[11px] font-bold tracking-[.14em] text-ink-faint">MAIL</div>
+          <div className="text-[0.6875rem] font-bold tracking-[.14em] text-ink-faint">MAIL</div>
           <input
             type="email"
             required
@@ -65,12 +65,12 @@ export function AuthScreen() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="vos@mail.com"
-            className="w-full border-0 border-b-[1.5px] border-paper-line bg-transparent pt-[10px] pb-[9px] text-[16px] text-ink outline-none focus:border-azul placeholder:text-ink-faintest"
+            className="w-full border-0 border-b-[1.5px] border-paper-line bg-transparent pt-[10px] pb-[9px] text-[1rem] text-ink outline-none focus:border-azul placeholder:text-ink-faintest"
           />
         </label>
 
         <label className="block">
-          <div className="text-[11px] font-bold tracking-[.14em] text-azul">CONTRASEÑA</div>
+          <div className="text-[0.6875rem] font-bold tracking-[.14em] text-azul">CONTRASEÑA</div>
           <div className="flex items-center justify-between border-b-[1.5px] border-azul pt-[10px] pb-[9px]">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -80,12 +80,12 @@ export function AuthScreen() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="flex-1 border-0 bg-transparent text-[16px] tracking-[.1em] text-ink outline-none placeholder:text-ink-faintest"
+              className="flex-1 border-0 bg-transparent text-[1rem] tracking-[.1em] text-ink outline-none placeholder:text-ink-faintest"
             />
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="text-[13px] font-semibold text-azul shrink-0 ml-2"
+              className="text-[0.8125rem] font-semibold text-azul shrink-0 ml-2"
             >
               {showPassword ? 'Ocultar' : 'Ver'}
             </button>
@@ -99,7 +99,7 @@ export function AuthScreen() {
           <button
             type="submit"
             disabled={busy}
-            className="bg-ink text-ink-onDark text-[16px] font-semibold py-4 rounded-lg text-center disabled:opacity-60"
+            className="bg-ink text-ink-onDark text-[1rem] font-semibold py-4 rounded-lg text-center disabled:opacity-60"
           >
             {busy ? 'Un momento…' : mode === 'signin' ? 'Entrar' : 'Crear cuenta'}
           </button>
@@ -107,7 +107,7 @@ export function AuthScreen() {
             <button
               type="button"
               onClick={handleForgotPassword}
-              className="text-center text-[14px] font-semibold text-ink-faint"
+              className="text-center text-[0.875rem] font-semibold text-ink-faint"
             >
               Olvidé mi contraseña
             </button>
@@ -115,7 +115,7 @@ export function AuthScreen() {
         </div>
       </form>
 
-      <div className="mt-auto pb-10 pt-8 text-center text-[14px] text-ink-faint">
+      <div className="mt-auto pb-10 pt-8 text-center text-[0.875rem] text-ink-faint">
         {mode === 'signin' ? (
           <>
             ¿Primera vez?{' '}

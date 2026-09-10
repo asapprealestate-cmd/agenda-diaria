@@ -8,6 +8,20 @@ body,
   height: 100%;
 }
 
+/* Tamaño de letra elegido por la persona (Ajustes → Tamaño de letra).
+   Al ser un % sobre el root, todo el texto en rem de la app escala junto,
+   sin romper el layout (los tamaños fijos en px, como íconos y botones
+   circulares, quedan igual). */
+html {
+  font-size: 100%;
+}
+html[data-font-scale='grande'] {
+  font-size: 120%;
+}
+html[data-font-scale='muy-grande'] {
+  font-size: 140%;
+}
+
 body {
   background-color: #eef1f3;
   color: #111827;

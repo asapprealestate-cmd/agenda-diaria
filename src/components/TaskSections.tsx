@@ -19,7 +19,7 @@ export function TimelineSection({
 
   return (
     <section className="mb-1">
-      <h2 className="text-[11px] font-bold tracking-[.14em] text-ink-faint mb-3">CON HORARIO</h2>
+      <h2 className="text-[0.6875rem] font-bold tracking-[.14em] text-ink-faint mb-3">CON HORARIO</h2>
       <div className="flex flex-col">
         {withTime.map((t) => (
           <TimelineRow key={t.id} task={t} onToggle={onToggle} onOpen={onOpen} />
@@ -43,7 +43,7 @@ export function LooseTaskSection({
 
   return (
     <section className="border-t border-paper-divider pt-4 mt-1">
-      <h2 className="text-[11px] font-bold tracking-[.14em] text-ink-faint mb-3">SUELTAS</h2>
+      <h2 className="text-[0.6875rem] font-bold tracking-[.14em] text-ink-faint mb-3">SUELTAS</h2>
       <div className="flex flex-col gap-[14px]">
         {withoutTime.map((t) => (
           <LooseRow key={t.id} task={t} onToggle={onToggle} onOpen={onOpen} />

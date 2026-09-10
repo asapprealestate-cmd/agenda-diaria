@@ -30,17 +30,17 @@ function TaskTags({ task }: { task: Task }) {
   return (
     <div className="flex flex-wrap items-center gap-[6px] mt-[6px]">
       {task.carried_over && !task.done && (
-        <span className="text-[11px] font-bold text-rojo border border-rojo-tintBorder bg-rojo-tint rounded-[3px] px-[6px] py-[2px]">
+        <span className="text-[0.6875rem] font-bold text-rojo border border-rojo-tintBorder bg-rojo-tint rounded-[3px] px-[6px] py-[2px]">
           ↷ {daysCarried} {daysCarried === 1 ? 'DÍA' : 'DÍAS'}
         </span>
       )}
       {task.category && (
-        <span className="text-[11px] font-semibold text-azul border border-azul-tintBorder rounded-[3px] px-[6px] py-[2px] uppercase">
+        <span className="text-[0.6875rem] font-semibold text-azul border border-azul-tintBorder rounded-[3px] px-[6px] py-[2px] uppercase">
           {task.category}
         </span>
       )}
       {task.subtasks.length > 0 && (
-        <span className="text-[12px] text-ink-faint">
+        <span className="text-[0.75rem] text-ink-faint">
           {task.subtasks.filter((s) => s.done).length}/{task.subtasks.length} subtareas
         </span>
       )}
@@ -60,7 +60,7 @@ export function TimelineRow({
   const overdue = task.carried_over && !task.done
   return (
     <div className="flex gap-[14px] fade-in-up cursor-pointer" onClick={() => onOpen(task)}>
-      <div className="w-11 pt-[2px] text-[13px] font-semibold text-right shrink-0" style={{ color: task.done ? '#9AA1AA' : '#4C5361' }}>
+      <div className="w-11 pt-[2px] text-[0.8125rem] font-semibold text-right shrink-0" style={{ color: task.done ? '#9AA1AA' : '#4C5361' }}>
         {formatTime(task.time)}
       </div>
       <div className="w-px shrink-0 relative" style={{ background: '#D3D7DB' }}>
@@ -72,7 +72,7 @@ export function TimelineRow({
       <div className="flex-1 pb-[18px] flex gap-[10px] items-start min-w-0">
         <Checkbox done={task.done} overdue={overdue} onToggle={() => onToggle(task)} />
         <div className="flex-1 min-w-0">
-          <div className={`text-[15px] font-medium truncate ${task.done ? 'text-ink-faintest line-through' : 'text-ink'}`}>
+          <div className={`text-[0.9375rem] font-medium truncate ${task.done ? 'text-ink-faintest line-through' : 'text-ink'}`}>
             {task.priority === 1 && !task.done && <span className="text-rojo font-bold mr-1">!!</span>}
             {task.title}
           </div>
@@ -97,7 +97,7 @@ export function LooseRow({
     <div className="flex gap-[10px] items-start fade-in-up cursor-pointer" onClick={() => onOpen(task)}>
       <Checkbox done={task.done} overdue={overdue} onToggle={() => onToggle(task)} />
       <div className="flex-1 min-w-0">
-        <div className={`text-[15px] font-medium truncate ${task.done ? 'text-ink-faintest line-through' : 'text-ink'}`}>
+        <div className={`text-[0.9375rem] font-medium truncate ${task.done ? 'text-ink-faintest line-through' : 'text-ink'}`}>
           {task.priority === 1 && !task.done && <span className="text-rojo font-bold mr-1">!!</span>}
           {task.title}
         </div>

@@ -33,18 +33,18 @@ export function StatsScreen({ onBack }: { onBack: () => void }) {
       </div>
 
       <div className="flex-1 px-[26px] pb-8 overflow-y-auto">
-        <div className="font-serif text-[32px] text-ink">Cómo vas</div>
-        <div className="text-[13px] text-ink-faint mt-0.5">últimos 30 días</div>
+        <div className="font-serif text-[2rem] text-ink">Cómo vas</div>
+        <div className="text-[0.8125rem] text-ink-faint mt-0.5">últimos 30 días</div>
 
         {loading || !stats ? (
           <p className="text-center text-ink-faintest text-sm mt-10">Cargando…</p>
         ) : (
           <>
             <div className="mt-[22px] bg-ink rounded-xl p-[22px] text-ink-onDark">
-              <div className="text-[11px] font-bold tracking-[.14em] text-ink-onDarkFaint">RACHA ACTUAL</div>
+              <div className="text-[0.6875rem] font-bold tracking-[.14em] text-ink-onDarkFaint">RACHA ACTUAL</div>
               <div className="flex items-baseline gap-2 mt-1">
-                <div className="font-serif text-[62px] leading-none">{stats.streak}</div>
-                <div className="text-[15px] text-ink-onDarkSoft">días seguidos anotando</div>
+                <div className="font-serif text-[3.875rem] leading-none">{stats.streak}</div>
+                <div className="text-[0.9375rem] text-ink-onDarkSoft">días seguidos anotando</div>
               </div>
               <div className="flex gap-[5px] mt-[18px]">
                 {(bars.length ? bars : Array(10).fill(0)).map((v, i) => (
@@ -59,25 +59,25 @@ export function StatsScreen({ onBack }: { onBack: () => void }) {
 
             <div className="flex gap-[10px] mt-[14px]">
               <div className="flex-1 border border-paper-line rounded-[10px] p-4">
-                <div className="font-serif text-[34px] text-ink leading-none">
+                <div className="font-serif text-[2.125rem] text-ink leading-none">
                   {stats.same_day_pct}
-                  <span className="text-[20px]">%</span>
+                  <span className="text-[1.25rem]">%</span>
                 </div>
-                <div className="text-[12px] text-ink-faint mt-1.5 leading-[1.4]">tareas hechas el mismo día</div>
+                <div className="text-[0.75rem] text-ink-faint mt-1.5 leading-[1.4]">tareas hechas el mismo día</div>
               </div>
               <div className="flex-1 border border-rojo-tintBorder bg-rojo-tint rounded-[10px] p-4">
-                <div className="font-serif text-[34px] text-rojo leading-none">{stats.stuck_count}</div>
-                <div className="text-[12px] text-rojo-dark mt-1.5 leading-[1.4]">arrastradas más de 3 días</div>
+                <div className="font-serif text-[2.125rem] text-rojo leading-none">{stats.stuck_count}</div>
+                <div className="text-[0.75rem] text-rojo-dark mt-1.5 leading-[1.4]">arrastradas más de 3 días</div>
               </div>
             </div>
 
             {stats.categories.length > 0 && (
               <div className="mt-[26px]">
-                <div className="text-[11px] font-bold tracking-[.14em] text-ink-faint">POR CATEGORÍA</div>
+                <div className="text-[0.6875rem] font-bold tracking-[.14em] text-ink-faint">POR CATEGORÍA</div>
                 <div className="flex flex-col gap-[14px] mt-[14px]">
                   {stats.categories.slice(0, 5).map((c) => (
                     <div key={c.category}>
-                      <div className="flex justify-between text-[14px] text-ink mb-[6px]">
+                      <div className="flex justify-between text-[0.875rem] text-ink mb-[6px]">
                         <span className="capitalize">{c.category.toLowerCase()}</span>
                         <span className="font-semibold text-ink-soft">{c.pct}%</span>
                       </div>
@@ -94,7 +94,7 @@ export function StatsScreen({ onBack }: { onBack: () => void }) {
             )}
 
             <div className="mt-[26px] border-t border-paper-divider pt-4">
-              <div className="font-serif italic text-[19px] leading-[1.4] text-ink-soft">{insight}</div>
+              <div className="font-serif italic text-[1.1875rem] leading-[1.4] text-ink-soft">{insight}</div>
             </div>
           </>
         )}
