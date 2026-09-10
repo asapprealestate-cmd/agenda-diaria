@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { NewTaskInput, Priority, Subtask, Task } from '../lib/types'
 import type { Category } from '../hooks/useCategoryList'
+import { useVisualViewport } from '../hooks/useVisualViewport'
 
 function uid() {
   return Math.random().toString(36).slice(2, 10)
@@ -31,6 +32,7 @@ export function AddTaskSheet({
   const [subtasks, setSubtasks] = useState<Subtask[]>(task?.subtasks ?? [])
   const [newSubtask, setNewSubtask] = useState('')
   const [autoRollover, setAutoRollover] = useState(task?.auto_rollover ?? true)
+  const viewport = useVisualViewport()
 
   // Si la tarea tiene una categoría que ya no está en la lista (se borró), la mostramos
   // igual para no perderla, pero sin botón de borrar (no hay a qué categoría apuntar).
@@ -79,10 +81,22 @@ export function AddTaskSheet({
     })
   }
 
+  // En iOS, cuando se abre el teclado, la pantalla "completa" (100vh) sigue
+  // midiendo lo mismo pero el teclado tapa la parte de abajo. Anclamos la hoja
+  // al alto que realmente queda visible (visualViewport) para que no quede
+  // escondida detrás del teclado.
+  const sheetStyle = viewport
+    ? { top: viewport.offsetTop, height: viewport.height }
+    : { top: 0, height: '100vh' }
+  const sheetMaxHeight = viewport ? viewport.height * 0.94 : undefined
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center">
+    <div className="fixed left-0 right-0 z-50 flex items-end justify-center" style={sheetStyle}>
       <div className="absolute inset-0 bg-ink/50" onClick={onClose} />
-      <div className="relative w-full sm:w-[420px] sm:mb-8 sm:rounded-[24px] bg-paper rounded-t-[26px] shadow-sheet sheet-in max-h-[92vh] flex flex-col">
+      <div
+        className="relative w-full sm:w-[420px] sm:mb-8 sm:rounded-[24px] bg-paper rounded-t-[26px] shadow-sheet sheet-in max-h-[92vh] flex flex-col"
+        style={sheetMaxHeight ? { maxHeight: sheetMaxHeight } : undefined}
+      >
         <div className="px-[26px] pt-5 flex items-center justify-between shrink-0">
           <button onClick={onClose} className="text-[0.9375rem] font-semibold text-ink-faint">
             Cancelar

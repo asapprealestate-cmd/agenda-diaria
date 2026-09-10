@@ -31,7 +31,7 @@ export function DateHeader({
               {rel}
             </div>
           )}
-          <div className="font-serif text-[2.5rem] leading-[1.05] text-ink truncate">
+          <div className="font-serif text-[2.5rem] leading-[1.05] text-ink whitespace-nowrap hscroll">
             {weekday} {day}
           </div>
           <div className="text-[0.8125rem] text-ink-faint mt-0.5">

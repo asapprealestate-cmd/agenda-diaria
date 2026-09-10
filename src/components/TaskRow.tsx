@@ -72,7 +72,7 @@ export function TimelineRow({
       <div className="flex-1 pb-[18px] flex gap-[10px] items-start min-w-0">
         <Checkbox done={task.done} overdue={overdue} onToggle={() => onToggle(task)} />
         <div className="flex-1 min-w-0">
-          <div className={`text-[0.9375rem] font-medium truncate ${task.done ? 'text-ink-faintest line-through' : 'text-ink'}`}>
+          <div className={`text-[0.9375rem] font-medium whitespace-nowrap hscroll ${task.done ? 'text-ink-faintest line-through' : 'text-ink'}`}>
             {task.priority === 1 && !task.done && <span className="text-rojo font-bold mr-1">!!</span>}
             {task.title}
           </div>

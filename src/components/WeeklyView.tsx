@@ -87,7 +87,7 @@ function DayRow({
                 <div
                   key={t.id}
                   className={[
-                    'text-[0.875rem] truncate',
+                    'text-[0.875rem] whitespace-nowrap hscroll',
                     t.done ? 'text-ink-faintest line-through' : overdue ? 'text-rojo font-medium' : 'text-ink font-medium'
                   ].join(' ')}
                 >
