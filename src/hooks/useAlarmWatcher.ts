@@ -3,8 +3,8 @@ import { supabase } from '../lib/supabase'
 import { todayISO } from '../lib/dates'
 import type { RingingAlarm } from './usePushNotifications'
 
-const CHECK_EVERY_MS = 15000
-const DUE_WINDOW_MS = 45000 // margen para no perderse el aviso entre chequeos
+const CHECK_EVERY_MS = 10000
+const DUE_WINDOW_MS = 3 * 60000 // margen amplio, por si hubo algún freeze momentáneo
 
 interface AlarmRow {
   id: string

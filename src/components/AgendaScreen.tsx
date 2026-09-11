@@ -4,6 +4,7 @@ import { runRollover, useTasks } from '../hooks/useTasks'
 import { useCategoryList } from '../hooks/useCategoryList'
 import { usePushNotifications } from '../hooks/usePushNotifications'
 import { useAlarmWatcher } from '../hooks/useAlarmWatcher'
+import { useWakeLock } from '../hooks/useWakeLock'
 import type { useFontScale } from '../hooks/useFontScale'
 import { addDays, startOfWeek, todayISO } from '../lib/dates'
 import type { Task } from '../lib/types'
@@ -40,6 +41,12 @@ export function AgendaScreen({ fontScale }: { fontScale: ReturnType<typeof useFo
   // depende del aviso del navegador, que en iPhone no llega de forma confiable
   // mientras la app está en pantalla).
   useAlarmWatcher(user?.id, triggerAlarm)
+
+  // Si hay una alarma pendiente hoy, no dejamos que la pantalla se apague sola:
+  // en iPhone, apenas se apaga la pantalla, Safari congela la página entera y
+  // ninguna alarma puede sonar (por más bien armada que esté).
+  const hasAlarmPendingToday = date === todayISO() && tasks.some((t) => t.alarm_enabled && !t.done && t.time)
+  useWakeLock(hasAlarmPendingToday)
 
   useEffect(() => {
     if (!user || rolledOver) return
