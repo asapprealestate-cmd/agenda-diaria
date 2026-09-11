@@ -66,5 +66,12 @@ export function usePushNotifications(userId: string | undefined) {
     }
   }
 
-  return { permission, busy, enable, ringingAlarm, dismissRinging: () => setRingingAlarm(null) }
+  return {
+    permission,
+    busy,
+    enable,
+    ringingAlarm,
+    triggerAlarm: (alarm: RingingAlarm) => setRingingAlarm(alarm),
+    dismissRinging: () => setRingingAlarm(null)
+  }
 }

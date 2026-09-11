@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth'
 import { runRollover, useTasks } from '../hooks/useTasks'
 import { useCategoryList } from '../hooks/useCategoryList'
 import { usePushNotifications } from '../hooks/usePushNotifications'
+import { useAlarmWatcher } from '../hooks/useAlarmWatcher'
 import type { useFontScale } from '../hooks/useFontScale'
 import { addDays, startOfWeek, todayISO } from '../lib/dates'
 import type { Task } from '../lib/types'
@@ -32,9 +33,13 @@ export function AgendaScreen({ fontScale }: { fontScale: ReturnType<typeof useFo
   const { tasks, loading, error, addTask, updateTask, toggleDone, deleteTask, fetchYesterday, copyFromYesterday } =
     useTasks(date, user?.id)
   const { categories, addCategory, removeCategory } = useCategoryList(user?.id)
-  const { permission: pushPermission, enable: enablePush, ringingAlarm, dismissRinging } = usePushNotifications(
-    user?.id
-  )
+  const { permission: pushPermission, enable: enablePush, ringingAlarm, triggerAlarm, dismissRinging } =
+    usePushNotifications(user?.id)
+
+  // Con la app abierta, se fija ella misma si hay una alarma por sonar (no
+  // depende del aviso del navegador, que en iPhone no llega de forma confiable
+  // mientras la app está en pantalla).
+  useAlarmWatcher(user?.id, triggerAlarm)
 
   useEffect(() => {
     if (!user || rolledOver) return
