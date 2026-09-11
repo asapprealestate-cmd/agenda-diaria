@@ -1,33 +1,36 @@
 import { useEffect, useRef } from 'react'
 import type { RingingAlarm } from '../hooks/usePushNotifications'
+import { getSharedAudioContext } from '../lib/audioUnlock'
 
 export function AlarmRingingOverlay({ alarm, onDismiss }: { alarm: RingingAlarm; onDismiss: () => void }) {
-  const audioCtxRef = useRef<AudioContext | null>(null)
   const stopRef = useRef(false)
 
   useEffect(() => {
     stopRef.current = false
-    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-    const ctx = new AudioCtx()
-    audioCtxRef.current = ctx
+    // Reusamos el AudioContext que ya destrabamos con el primer toque en la
+    // app (ver src/lib/audioUnlock.ts) — uno creado recién acá, sin que la
+    // persona haya tocado nada en este instante, iOS lo deja mudo.
+    const ctx = getSharedAudioContext()
+    if (!ctx) return
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {})
 
     function beep(startAt: number, freq: number, duration: number) {
-      const osc = ctx.createOscillator()
-      const gain = ctx.createGain()
+      const osc = ctx!.createOscillator()
+      const gain = ctx!.createGain()
       osc.type = 'square'
       osc.frequency.value = freq
       gain.gain.setValueAtTime(0.0001, startAt)
       gain.gain.exponentialRampToValueAtTime(0.35, startAt + 0.02)
       gain.gain.exponentialRampToValueAtTime(0.0001, startAt + duration)
       osc.connect(gain)
-      gain.connect(ctx.destination)
+      gain.connect(ctx!.destination)
       osc.start(startAt)
       osc.stop(startAt + duration)
     }
 
     function playPattern() {
       if (stopRef.current) return
-      const now = ctx.currentTime
+      const now = ctx!.currentTime
       beep(now, 880, 0.25)
       beep(now + 0.35, 880, 0.25)
       beep(now + 0.7, 660, 0.4)
@@ -47,7 +50,7 @@ export function AlarmRingingOverlay({ alarm, onDismiss }: { alarm: RingingAlarm;
       clearInterval(interval)
       if (vibrateInterval) clearInterval(vibrateInterval)
       navigator.vibrate?.(0)
-      ctx.close()
+      // No cerramos el AudioContext: es compartido y lo reusamos la próxima alarma.
     }
   }, [])
 
