@@ -1,4 +1,6 @@
+import { useRef } from 'react'
 import { formatLongDate, isToday, relativeLabel } from '../lib/dates'
+import { useFitOneLine } from '../hooks/useFitOneLine'
 
 export function DateHeader({
   date,
@@ -22,16 +24,19 @@ export function DateHeader({
   const today = isToday(date)
   const pct = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0
 
+  const dateRef = useRef<HTMLDivElement>(null)
+  useFitOneLine(dateRef, [date])
+
   return (
     <div className="px-[26px] pt-[10px] pb-4 border-b border-paper-divider">
-      <div className="flex justify-between items-end gap-3">
+      <div className="flex justify-between items-end gap-[12px]">
         <button onClick={onOpenCalendar} className="text-left min-w-0 active:opacity-70 transition">
           {rel && (
             <div className={`text-[0.6875rem] font-bold tracking-[.14em] ${today ? 'text-azul' : 'text-ink-faint'}`}>
               {rel}
             </div>
           )}
-          <div className="font-serif text-[2.5rem] leading-[1.05] text-ink whitespace-nowrap hscroll">
+          <div ref={dateRef} className="font-serif text-[2.5rem] leading-[1.05] text-ink whitespace-nowrap overflow-hidden">
             {weekday} {day}
           </div>
           <div className="text-[0.8125rem] text-ink-faint mt-0.5">
@@ -39,25 +44,25 @@ export function DateHeader({
           </div>
         </button>
 
-        <div className="flex gap-2 items-center shrink-0">
+        <div className="flex gap-[8px] items-center shrink-0">
           <button
             aria-label="Día anterior"
             onClick={onPrev}
-            className="w-9 h-9 rounded-full border border-paper-line flex items-center justify-center text-ink active:scale-95 transition"
+            className="w-[36px] h-[36px] shrink-0 rounded-full border border-paper-line flex items-center justify-center text-ink active:scale-95 transition"
           >
             <ChevronLeft />
           </button>
           <button
             aria-label="Día siguiente"
             onClick={onNext}
-            className="w-9 h-9 rounded-full border border-paper-line flex items-center justify-center text-ink active:scale-95 transition"
+            className="w-[36px] h-[36px] shrink-0 rounded-full border border-paper-line flex items-center justify-center text-ink active:scale-95 transition"
           >
             <ChevronRight />
           </button>
           <button
             aria-label="Vista semanal"
             onClick={onOpenWeek}
-            className="w-9 h-9 rounded-full bg-ink text-ink-onDark flex items-center justify-center text-[0.875rem] active:scale-95 transition"
+            className="w-[36px] h-[36px] shrink-0 rounded-full bg-ink text-ink-onDark flex items-center justify-center text-[0.875rem] active:scale-95 transition"
           >
             ▤
           </button>

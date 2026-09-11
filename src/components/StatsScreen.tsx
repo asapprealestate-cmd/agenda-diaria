@@ -27,7 +27,7 @@ export function StatsScreen({ onBack }: { onBack: () => void }) {
   return (
     <div className="min-h-screen flex flex-col bg-paper font-sans">
       <div className="px-[26px] pt-[10px] pb-2 flex items-center gap-3">
-        <button onClick={onBack} className="w-9 h-9 -ml-1 rounded-full border border-paper-line flex items-center justify-center text-ink" aria-label="Volver">
+        <button onClick={onBack} className="w-[36px] h-[36px] -ml-1 rounded-full border border-paper-line flex items-center justify-center text-ink shrink-0" aria-label="Volver">
           ‹
         </button>
       </div>

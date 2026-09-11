@@ -1,7 +1,14 @@
 import type { FontScale } from '../hooks/useFontScale'
 import { FONT_SCALE_LABELS } from '../hooks/useFontScale'
 
-const OPTIONS: FontScale[] = ['normal', 'grande', 'muy-grande']
+const OPTIONS: FontScale[] = ['normal', 'grande', 'muy-grande', 'mono']
+
+const PREVIEW_SIZE: Record<FontScale, string> = {
+  normal: '1rem',
+  grande: '1.2rem',
+  'muy-grande': '1.4rem',
+  mono: '1.6rem'
+}
 
 export function SettingsScreen({
   scale,
@@ -17,7 +24,7 @@ export function SettingsScreen({
       <div className="px-[26px] pt-[10px] pb-2 flex items-center gap-3">
         <button
           onClick={onBack}
-          className="w-9 h-9 -ml-1 rounded-full border border-paper-line flex items-center justify-center text-ink"
+          className="w-[36px] h-[36px] -ml-1 rounded-full border border-paper-line flex items-center justify-center text-ink shrink-0"
           aria-label="Volver"
         >
           ‹
@@ -47,7 +54,7 @@ export function SettingsScreen({
                 >
                   <span
                     className={`font-serif ${selected ? 'text-ink-onDark' : 'text-ink'}`}
-                    style={{ fontSize: opt === 'normal' ? '1rem' : opt === 'grande' ? '1.2rem' : '1.4rem' }}
+                    style={{ fontSize: PREVIEW_SIZE[opt] }}
                   >
                     {FONT_SCALE_LABELS[opt]}
                   </span>

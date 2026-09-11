@@ -1,5 +1,7 @@
+import { useRef } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { useWeekTasks } from '../hooks/useWeekTasks'
+import { useFitOneLine } from '../hooks/useFitOneLine'
 import { addDays, diffDays, fromISO, isoWeekNumber, monthShort, todayISO, weekDays, weekdayShort } from '../lib/dates'
 import type { Task } from '../lib/types'
 
@@ -18,18 +20,21 @@ export function WeeklyView({
   const weekEnd = addDays(weekStart, 6)
   const today = todayISO()
 
+  const rangeRef = useRef<HTMLDivElement>(null)
+  useFitOneLine(rangeRef, [weekStart])
+
   return (
     <div className="min-h-screen flex flex-col bg-paper font-sans">
-      <div className="px-[26px] pt-[10px] pb-[14px] flex justify-between items-end border-b border-paper-divider">
-        <div>
+      <div className="px-[26px] pt-[10px] pb-[14px] flex justify-between items-end gap-[12px] border-b border-paper-divider">
+        <div className="min-w-0">
           <div className="text-[0.6875rem] font-bold tracking-[.14em] text-ink-faint">
             SEMANA {isoWeekNumber(weekStart)}
           </div>
-          <div className="font-serif text-[2rem] leading-[1.1] text-ink">
+          <div ref={rangeRef} className="font-serif text-[2rem] leading-[1.1] text-ink whitespace-nowrap overflow-hidden">
             {fromISO(weekStart).getDate()} → {fromISO(weekEnd).getDate()} {monthShort(weekEnd)}
           </div>
         </div>
-        <button onClick={onBack} className="text-[0.8125rem] font-semibold text-azul pb-1">
+        <button onClick={onBack} className="text-[0.8125rem] font-semibold text-azul pb-1 shrink-0">
           Ver día
         </button>
       </div>
@@ -87,7 +92,7 @@ function DayRow({
                 <div
                   key={t.id}
                   className={[
-                    'text-[0.875rem] whitespace-nowrap hscroll',
+                    'text-[0.875rem] break-words',
                     t.done ? 'text-ink-faintest line-through' : overdue ? 'text-rojo font-medium' : 'text-ink font-medium'
                   ].join(' ')}
                 >

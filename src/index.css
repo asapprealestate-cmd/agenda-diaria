@@ -21,6 +21,9 @@ html[data-font-scale='grande'] {
 html[data-font-scale='muy-grande'] {
   font-size: 140%;
 }
+html[data-font-scale='mono'] {
+  font-size: 165%;
+}
 
 body {
   background-color: #eef1f3;
@@ -78,16 +81,4 @@ body {
 
 .sheet-in {
   animation: sheet-in 260ms cubic-bezier(0.25, 0.9, 0.35, 1);
-}
-
-/* Para textos que con letra grande pueden no entrar en la pantalla:
-   en vez de cortarlos, se pueden deslizar hacia los costados para verlos enteros. */
-.hscroll {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.hscroll::-webkit-scrollbar {
-  display: none;
 }

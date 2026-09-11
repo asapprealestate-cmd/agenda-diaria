@@ -10,7 +10,7 @@ export function EmptyState({
   return (
     <div className="flex-1 flex flex-col items-center justify-center gap-[22px] px-9 text-center">
       <div
-        className="w-32 h-[156px] border border-paper-line rounded-[3px] bg-paper-alt p-[14px_12px] flex flex-col gap-[13px]"
+        className="w-[128px] h-[156px] border border-paper-line rounded-[3px] bg-paper-alt p-[14px_12px] flex flex-col gap-[13px]"
         style={{ transform: 'rotate(-3deg)' }}
       >
         {Array.from({ length: 7 }).map((_, i) => (

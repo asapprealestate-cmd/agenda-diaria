@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import {
   addDays,
   buildMonthGrid,
@@ -9,6 +9,7 @@ import {
   weekDays,
   weekdayShort
 } from '../lib/dates'
+import { useFitOneLine } from '../hooks/useFitOneLine'
 
 export function CalendarModal({
   selected,
@@ -36,6 +37,9 @@ export function CalendarModal({
     onSelect(iso)
     onClose()
   }
+
+  const monthTitleRef = useRef<HTMLSpanElement>(null)
+  useFitOneLine(monthTitleRef, [cursor.year, cursor.month])
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center" role="dialog" aria-modal="true">
@@ -78,19 +82,24 @@ export function CalendarModal({
         </div>
 
         <div className="px-[26px] pt-[18px] border-t border-paper-divider">
-          <div className="flex items-center justify-between mb-4">
-            <span className="font-serif text-[1.375rem] text-ink">{monthLabel(cursor.year, cursor.month)}</span>
-            <div className="flex gap-2">
+          <div className="flex items-center justify-between mb-4 gap-[8px]">
+            <span
+              ref={monthTitleRef}
+              className="font-serif text-[1.375rem] text-ink whitespace-nowrap overflow-hidden min-w-0 block"
+            >
+              {monthLabel(cursor.year, cursor.month)}
+            </span>
+            <div className="flex gap-[8px] shrink-0">
               <button
                 onClick={() => shiftMonth(-1)}
-                className="w-8 h-8 rounded-full border border-paper-line flex items-center justify-center text-[0.875rem] text-ink"
+                className="w-[32px] h-[32px] shrink-0 rounded-full border border-paper-line flex items-center justify-center text-[0.875rem] text-ink"
                 aria-label="Mes anterior"
               >
                 ‹
               </button>
               <button
                 onClick={() => shiftMonth(1)}
-                className="w-8 h-8 rounded-full border border-paper-line flex items-center justify-center text-[0.875rem] text-ink"
+                className="w-[32px] h-[32px] shrink-0 rounded-full border border-paper-line flex items-center justify-center text-[0.875rem] text-ink"
                 aria-label="Mes siguiente"
               >
                 ›

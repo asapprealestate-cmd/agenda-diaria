@@ -81,7 +81,7 @@ export function AgendaScreen({ fontScale }: { fontScale: ReturnType<typeof useFo
 
   return (
     <div className="min-h-screen flex flex-col bg-paper font-sans" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-      <div className="flex justify-end items-center gap-4 px-[26px] pt-3">
+      <div className="flex justify-end items-center gap-[16px] px-[26px] pt-3">
         <button onClick={() => setView('settings')} aria-label="Ajustes" className="text-ink-faint">
           <GearIcon />
         </button>

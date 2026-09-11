@@ -1,19 +1,21 @@
 import { useEffect, useState } from 'react'
 
-export type FontScale = 'normal' | 'grande' | 'muy-grande'
+export type FontScale = 'normal' | 'grande' | 'muy-grande' | 'mono'
 
 const STORAGE_KEY = 'agenda-font-scale'
+const VALID: FontScale[] = ['normal', 'grande', 'muy-grande', 'mono']
 
 export const FONT_SCALE_LABELS: Record<FontScale, string> = {
   normal: 'Normal',
   grande: 'Grande',
-  'muy-grande': 'Muy grande'
+  'muy-grande': 'Muy grande',
+  mono: 'Mono'
 }
 
 function readStored(): FontScale {
   try {
     const v = localStorage.getItem(STORAGE_KEY)
-    if (v === 'normal' || v === 'grande' || v === 'muy-grande') return v
+    if (VALID.includes(v as FontScale)) return v as FontScale
   } catch {
     // localStorage no disponible (modo privado, etc.) — seguimos con el default
   }
