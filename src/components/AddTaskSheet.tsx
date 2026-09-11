@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { NewTaskInput, Priority, Subtask, Task } from '../lib/types'
 import type { Category } from '../hooks/useCategoryList'
 import { useVisualViewport } from '../hooks/useVisualViewport'
+import { isIos, isStandalonePwa } from '../lib/push'
 
 function uid() {
   return Math.random().toString(36).slice(2, 10)
@@ -14,7 +15,10 @@ export function AddTaskSheet({
   onRemoveCategory,
   onSave,
   onDelete,
-  onClose
+  onClose,
+  pushPermission,
+  onEnablePush,
+  onNeedsInstall
 }: {
   task?: Task
   categories: Category[]
@@ -23,6 +27,9 @@ export function AddTaskSheet({
   onSave: (input: NewTaskInput) => void
   onDelete?: () => void
   onClose: () => void
+  pushPermission: NotificationPermission | 'unsupported'
+  onEnablePush: () => Promise<boolean>
+  onNeedsInstall: () => void
 }) {
   const [title, setTitle] = useState(task?.title ?? '')
   const [hasTime, setHasTime] = useState(!!task?.time)
@@ -32,6 +39,14 @@ export function AddTaskSheet({
   const [subtasks, setSubtasks] = useState<Subtask[]>(task?.subtasks ?? [])
   const [newSubtask, setNewSubtask] = useState('')
   const [autoRollover, setAutoRollover] = useState(task?.auto_rollover ?? true)
+  const [alarmEnabled, setAlarmEnabled] = useState(task?.alarm_enabled ?? false)
+  const [alarmMode, setAlarmMode] = useState<'exact' | 'before'>(
+    (task?.alarm_offset_minutes ?? 0) > 0 ? 'before' : 'exact'
+  )
+  const [alarmMinutes, setAlarmMinutes] = useState(
+    task?.alarm_offset_minutes && task.alarm_offset_minutes > 0 ? String(task.alarm_offset_minutes) : '10'
+  )
+  const [enablingAlarm, setEnablingAlarm] = useState(false)
   const viewport = useVisualViewport()
 
   // Si la tarea tiene una categoría que ya no está en la lista (se borró), la mostramos
@@ -69,15 +84,37 @@ export function AddTaskSheet({
     if (id) onRemoveCategory(id)
   }
 
+  async function handleToggleAlarm() {
+    if (alarmEnabled) {
+      setAlarmEnabled(false)
+      return
+    }
+    if (pushPermission === 'granted') {
+      setAlarmEnabled(true)
+      return
+    }
+    setEnablingAlarm(true)
+    const ok = await onEnablePush()
+    setEnablingAlarm(false)
+    if (ok) {
+      setAlarmEnabled(true)
+    } else if (isIos() && !isStandalonePwa()) {
+      onNeedsInstall()
+    }
+  }
+
   function handleSave() {
     if (!title.trim()) return
+    const minutes = Math.max(0, parseInt(alarmMinutes, 10) || 0)
     onSave({
       title: title.trim(),
       time: hasTime ? `${time}:00` : null,
       category,
       priority,
       subtasks,
-      auto_rollover: autoRollover
+      auto_rollover: autoRollover,
+      alarm_enabled: hasTime && alarmEnabled,
+      alarm_offset_minutes: hasTime && alarmEnabled && alarmMode === 'before' ? minutes : 0
     })
   }
 
@@ -156,6 +193,59 @@ export function AddTaskSheet({
               </div>
             )}
           </div>
+
+          {hasTime && (
+            <div className="mt-6">
+              <div className="flex items-center justify-between">
+                <div className="text-[0.6875rem] font-bold tracking-[.14em] text-ink-faint">ALARMA</div>
+                <button
+                  onClick={handleToggleAlarm}
+                  disabled={enablingAlarm}
+                  className={`text-[0.8125rem] font-bold ${alarmEnabled ? 'text-azul' : 'text-ink-faintest'}`}
+                >
+                  {enablingAlarm ? 'Un momento…' : alarmEnabled ? 'Activada' : 'Desactivada'}
+                </button>
+              </div>
+
+              {alarmEnabled && (
+                <div className="mt-[10px]">
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setAlarmMode('exact')}
+                      className={[
+                        'flex-1 text-center text-[0.8125rem] font-semibold py-[9px] rounded-[7px] transition',
+                        alarmMode === 'exact' ? 'bg-ink text-ink-onDark' : 'border border-paper-line text-ink-soft'
+                      ].join(' ')}
+                    >
+                      A la hora
+                    </button>
+                    <button
+                      onClick={() => setAlarmMode('before')}
+                      className={[
+                        'flex-1 text-center text-[0.8125rem] font-semibold py-[9px] rounded-[7px] transition',
+                        alarmMode === 'before' ? 'bg-ink text-ink-onDark' : 'border border-paper-line text-ink-soft'
+                      ].join(' ')}
+                    >
+                      Antes
+                    </button>
+                  </div>
+                  {alarmMode === 'before' && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <input
+                        type="number"
+                        min={1}
+                        inputMode="numeric"
+                        value={alarmMinutes}
+                        onChange={(e) => setAlarmMinutes(e.target.value)}
+                        className="w-20 text-[0.9375rem] font-semibold text-ink border border-paper-line rounded-lg px-[13px] py-[9px] bg-transparent outline-none focus:border-azul"
+                      />
+                      <span className="text-[0.875rem] text-ink-faint">minutos antes</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="mt-6">
             <div className="text-[0.6875rem] font-bold tracking-[.14em] text-ink-faint">CATEGORÍA Y PRIORIDAD</div>

@@ -48,6 +48,7 @@ instalable, alojado en Cloudflare Pages.
 4. Variables de entorno (Settings → Environment variables), iguales a las de `.env`:
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_ANON_KEY`
+   - `VITE_VAPID_PUBLIC_KEY`
 5. Deploy. Cada push a la rama principal genera un deploy automático.
 
 ### Subir a GitHub
@@ -81,10 +82,17 @@ Claude Design).
 - Vista semanal (grilla de 7 días) y "Cómo vas" (racha, % cumplido, arrastradas,
   por categoría, mejor/peor día).
 - Cuenta con email/contraseña, sync con Supabase, PWA instalable.
+- Tamaño de letra ajustable (Ajustes → Normal/Grande/Muy grande/Mono).
+- **Alarmas y notificaciones por tarea**: toda tarea con horario manda una
+  notificación push (llega aunque el celular esté bloqueado o la app cerrada).
+  Si se activa la alarma de esa tarea, el aviso suena/vibra más fuerte y no se
+  cierra solo — a la hora exacta o los minutos antes que elijas. Ver detalle
+  técnico y limitaciones en [`supabase/functions/send-task-reminders`](supabase/functions/send-task-reminders).
+  **En iPhone requiere instalar la app** ("Agregar a pantalla de inicio") — es
+  una restricción de Apple para cualquier sitio web, no algo propio de esta app.
 
 ## Roadmap pendiente
 
-- Recordatorios/notificaciones en tareas con horario.
 - Swipe gestures (deslizar para completar/posponer).
 - Buscador de tareas pasadas.
 - Nota rápida del día.

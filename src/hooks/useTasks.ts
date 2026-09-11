@@ -40,6 +40,8 @@ export function useTasks(date: string, userId: string | undefined) {
         priority: input.priority,
         subtasks: input.subtasks,
         auto_rollover: input.auto_rollover,
+        alarm_enabled: input.alarm_enabled,
+        alarm_offset_minutes: input.alarm_offset_minutes,
         date,
         original_date: date,
         sort_order: maxOrder + 1
@@ -62,7 +64,10 @@ export function useTasks(date: string, userId: string | undefined) {
         category: input.category,
         priority: input.priority,
         subtasks: input.subtasks,
-        auto_rollover: input.auto_rollover
+        auto_rollover: input.auto_rollover,
+        alarm_enabled: input.alarm_enabled,
+        alarm_offset_minutes: input.alarm_offset_minutes,
+        notified_at: null // se reprograma el aviso con los datos nuevos
       })
       .eq('id', task.id)
       .select()
@@ -117,6 +122,8 @@ export function useTasks(date: string, userId: string | undefined) {
       priority: t.priority,
       subtasks: (t.subtasks ?? []).map((s) => ({ ...s, done: false })),
       auto_rollover: t.auto_rollover,
+      alarm_enabled: t.alarm_enabled,
+      alarm_offset_minutes: t.alarm_offset_minutes,
       date,
       original_date: date,
       sort_order: maxOrder + i + 1

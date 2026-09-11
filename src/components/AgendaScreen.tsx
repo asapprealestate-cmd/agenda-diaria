@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { runRollover, useTasks } from '../hooks/useTasks'
 import { useCategoryList } from '../hooks/useCategoryList'
+import { usePushNotifications } from '../hooks/usePushNotifications'
 import type { useFontScale } from '../hooks/useFontScale'
 import { addDays, startOfWeek, todayISO } from '../lib/dates'
 import type { Task } from '../lib/types'
@@ -13,6 +14,8 @@ import { EmptyState } from './EmptyState'
 import { WeeklyView } from './WeeklyView'
 import { StatsScreen } from './StatsScreen'
 import { SettingsScreen } from './SettingsScreen'
+import { InstallGuide } from './InstallGuide'
+import { AlarmRingingOverlay } from './AlarmRingingOverlay'
 
 type ViewMode = 'day' | 'week' | 'stats' | 'settings'
 
@@ -24,10 +27,14 @@ export function AgendaScreen({ fontScale }: { fontScale: ReturnType<typeof useFo
   const [sheetTask, setSheetTask] = useState<Task | 'new' | null>(null)
   const [rolledOver, setRolledOver] = useState(false)
   const [yesterdayHasTasks, setYesterdayHasTasks] = useState<boolean | null>(null)
+  const [showInstallGuide, setShowInstallGuide] = useState(false)
 
   const { tasks, loading, error, addTask, updateTask, toggleDone, deleteTask, fetchYesterday, copyFromYesterday } =
     useTasks(date, user?.id)
   const { categories, addCategory, removeCategory } = useCategoryList(user?.id)
+  const { permission: pushPermission, enable: enablePush, ringingAlarm, dismissRinging } = usePushNotifications(
+    user?.id
+  )
 
   useEffect(() => {
     if (!user || rolledOver) return
@@ -55,25 +62,40 @@ export function AgendaScreen({ fontScale }: { fontScale: ReturnType<typeof useFo
     touchStartX.current = null
   }
 
+  const alarmOverlay = ringingAlarm && <AlarmRingingOverlay alarm={ringingAlarm} onDismiss={dismissRinging} />
+
   if (view === 'week') {
     return (
-      <WeeklyView
-        weekStart={startOfWeek(date)}
-        onSelectDay={(iso) => {
-          setDate(iso)
-          setView('day')
-        }}
-        onBack={() => setView('day')}
-      />
+      <>
+        <WeeklyView
+          weekStart={startOfWeek(date)}
+          onSelectDay={(iso) => {
+            setDate(iso)
+            setView('day')
+          }}
+          onBack={() => setView('day')}
+        />
+        {alarmOverlay}
+      </>
     )
   }
 
   if (view === 'stats') {
-    return <StatsScreen onBack={() => setView('day')} />
+    return (
+      <>
+        <StatsScreen onBack={() => setView('day')} />
+        {alarmOverlay}
+      </>
+    )
   }
 
   if (view === 'settings') {
-    return <SettingsScreen scale={fontScale.scale} onChangeScale={fontScale.setScale} onBack={() => setView('day')} />
+    return (
+      <>
+        <SettingsScreen scale={fontScale.scale} onChangeScale={fontScale.setScale} onBack={() => setView('day')} />
+        {alarmOverlay}
+      </>
+    )
   }
 
   const doneCount = tasks.filter((t) => t.done).length
@@ -152,8 +174,14 @@ export function AgendaScreen({ fontScale }: { fontScale: ReturnType<typeof useFo
                 }
               : undefined
           }
+          pushPermission={pushPermission}
+          onEnablePush={enablePush}
+          onNeedsInstall={() => setShowInstallGuide(true)}
         />
       )}
+
+      {showInstallGuide && <InstallGuide onClose={() => setShowInstallGuide(false)} />}
+      {alarmOverlay}
     </div>
   )
 }

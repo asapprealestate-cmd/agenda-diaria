@@ -21,6 +21,9 @@ export interface Task {
   sort_order: number
   auto_rollover: boolean
   subtasks: Subtask[]
+  alarm_enabled: boolean
+  alarm_offset_minutes: number // 0 = a la hora exacta; N = N minutos antes
+  notified_at: string | null
   created_at: string
   updated_at: string
 }
@@ -32,6 +35,8 @@ export type NewTaskInput = {
   priority: Priority | null
   subtasks: Subtask[]
   auto_rollover: boolean
+  alarm_enabled: boolean
+  alarm_offset_minutes: number
 }
 
 export interface StatsSummary {

@@ -207,3 +207,118 @@ revoke execute on function public.seed_default_categories() from authenticated;
 create trigger on_auth_user_created_categories
   after insert on auth.users
   for each row execute function public.seed_default_categories();
+
+-- ===== Alarmas y notificaciones por tarea =====
+
+alter table public.tasks
+  add column if not exists alarm_enabled boolean not null default false,
+  add column if not exists alarm_offset_minutes integer not null default 0, -- 0 = a la hora exacta; N = N minutos antes
+  add column if not exists notified_at timestamptz null; -- cuándo se mandó el aviso (evita duplicados)
+
+create table public.user_settings (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  timezone text not null default 'UTC',
+  updated_at timestamptz not null default now()
+);
+
+alter table public.user_settings enable row level security;
+create policy "user_settings_select_own" on public.user_settings for select using (auth.uid() = user_id);
+create policy "user_settings_upsert_own" on public.user_settings for insert with check (auth.uid() = user_id);
+create policy "user_settings_update_own" on public.user_settings for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create trigger user_settings_set_updated_at
+  before update on public.user_settings
+  for each row execute function public.set_updated_at();
+
+create table public.push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.push_subscriptions enable row level security;
+create policy "push_subs_select_own" on public.push_subscriptions for select using (auth.uid() = user_id);
+create policy "push_subs_insert_own" on public.push_subscriptions for insert with check (auth.uid() = user_id);
+create policy "push_subs_delete_own" on public.push_subscriptions for delete using (auth.uid() = user_id);
+
+-- Secretos de servidor (claves VAPID). RLS habilitado sin policies = solo
+-- accesible con la service role (la usa la Edge Function), nunca desde el cliente.
+create table public.app_secrets (
+  key text primary key,
+  value text not null
+);
+alter table public.app_secrets enable row level security;
+
+-- El rollover también reinicia el aviso, para que vuelva a sonar en el día nuevo
+create or replace function public.rollover_tasks(p_today date)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.tasks
+  set date = p_today,
+      carried_over = true,
+      notified_at = null
+  where user_id = auth.uid()
+    and done = false
+    and auto_rollover = true
+    and date < p_today;
+end;
+$$;
+
+-- Tareas cuyo aviso está por vencer (llamada por el cron cada 1 minuto).
+-- Ventana: entre 10 minutos de atraso (por si el cron se demoró) y "ahora".
+create or replace function public.due_task_reminders()
+returns table (
+  task_id uuid,
+  user_id uuid,
+  title text,
+  time_label text,
+  alarm_enabled boolean
+)
+language sql
+security definer
+set search_path = public
+as $$
+  select
+    t.id,
+    t.user_id,
+    t.title,
+    to_char(t.time, 'HH24:MI'),
+    t.alarm_enabled
+  from public.tasks t
+  join public.user_settings us on us.user_id = t.user_id
+  where t.time is not null
+    and t.done = false
+    and t.notified_at is null
+    and (
+      (t.date::timestamp + t.time::interval)
+      - make_interval(mins => case when t.alarm_enabled then t.alarm_offset_minutes else 0 end)
+    ) at time zone us.timezone
+      between now() - interval '10 minutes' and now();
+$$;
+
+revoke execute on function public.due_task_reminders() from public;
+revoke execute on function public.due_task_reminders() from anon;
+revoke execute on function public.due_task_reminders() from authenticated;
+-- la ejecuta la Edge Function con la service role (bypassea RLS igual, pero dejamos explícito el intent)
+
+-- Extensiones para el cron que dispara la Edge Function cada 1 minuto
+create extension if not exists pg_cron with schema extensions;
+create extension if not exists pg_net with schema extensions;
+
+-- El cron (ver también supabase/functions/send-task-reminders/index.ts):
+-- select cron.schedule(
+--   'send-task-reminders-every-minute',
+--   '* * * * *',
+--   $$ select net.http_post(
+--        url := '<PROJECT_URL>/functions/v1/send-task-reminders',
+--        headers := jsonb_build_object('Content-Type','application/json','Authorization','Bearer <ANON_KEY>'),
+--        body := '{}'::jsonb
+--      ); $$
+-- );
